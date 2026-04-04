@@ -1,11 +1,15 @@
 // updateAppointment.js
-import { updateAppointment } from "../js/services/appointmentRecordService.js";
-import { getDoctors } from "../js/services/doctorServices.js";
+
+// FIX: paths were "../js/services/..." but this file lives inside /js/ already,
+//      so the correct relative paths are "./services/..."
+import { updateAppointment } from "./services/appointmentRecordService.js";
+import { getDoctors } from "./services/doctorServices.js";
+
 document.addEventListener("DOMContentLoaded", initializePage);
 
 async function initializePage() {
-  const token = localStorage.getItem("token"); // Assuming token is stored in localStorage
-  // Get appointmentId and patientId from the URL query parameters
+  const token = localStorage.getItem("token");
+
   const urlParams = new URLSearchParams(window.location.search);
   const appointmentId = urlParams.get("appointmentId");
   const patientId = urlParams.get("patientId");
@@ -15,24 +19,22 @@ async function initializePage() {
   const appointmentDate = urlParams.get("appointmentDate");
   const appointmentTime = urlParams.get("appointmentTime");
 
-  console.log(doctorId)
+  console.log(doctorId);
+
   if (!token || !patientId) {
     alert("Missing session data, redirecting to appointments page.");
     window.location.href = "/pages/patientAppointments.html";
     return;
   }
 
-  // get doctor to display only the available time of doctor
   getDoctors()
     .then(doctors => {
-      // Find the doctor by the ID from the URL
       const doctor = doctors.find(d => d.id == doctorId);
       if (!doctor) {
         alert("Doctor not found.");
         return;
       }
 
-      // Fill the form with the appointment data passed in the URL
       document.getElementById("patientName").value = patientName || "You";
       document.getElementById("doctorName").value = doctorName;
       document.getElementById("appointmentDate").value = appointmentDate;
@@ -46,13 +48,13 @@ async function initializePage() {
         timeSelect.appendChild(option);
       });
 
-      // Handle form submission for updating the appointment
       document.getElementById("updateAppointmentForm").addEventListener("submit", async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
 
         const date = document.getElementById("appointmentDate").value;
         const time = document.getElementById("appointmentTime").value;
         const startTime = time.split('-')[0];
+
         if (!date || !time) {
           alert("Please select both date and time.");
           return;
@@ -70,7 +72,7 @@ async function initializePage() {
 
         if (updateResponse.success) {
           alert("Appointment updated successfully!");
-          window.location.href = "/pages/patientAppointments.html"; // Redirect back to the appointments page
+          window.location.href = "/pages/patientAppointments.html";
         } else {
           alert("❌ Failed to update appointment: " + updateResponse.message);
         }

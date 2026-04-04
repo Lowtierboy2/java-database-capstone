@@ -1,8 +1,10 @@
-// doctorService.js
+// doctorServices.js
 
-import { BASE_URL } from "../config.js";
+// FIX: was importing { BASE_URL } from "../config.js" — wrong path and wrong export name.
+//      Correct path is "../config/config.js" and the export is API_BASE_URL.
+import { API_BASE_URL } from "../config/config.js";
 
-const DOCTOR_API = `${BASE_URL}/api/doctors`;
+const DOCTOR_API = `${API_BASE_URL}/api/doctors`;
 
 // ===============================
 // GET ALL DOCTORS

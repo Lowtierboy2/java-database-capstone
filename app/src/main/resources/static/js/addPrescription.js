@@ -1,3 +1,5 @@
+// addPrescription.js
+
 import { savePrescription, getPrescription } from "./services/prescriptionServices.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -6,14 +8,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const medicinesInput = document.getElementById("medicines");
   const dosageInput = document.getElementById("dosage");
   const notesInput = document.getElementById("notes");
-  const heading = document.getElementById("heading")
-
+  const heading = document.getElementById("heading");
 
   const urlParams = new URLSearchParams(window.location.search);
   const appointmentId = urlParams.get("appointmentId");
   const mode = urlParams.get("mode");
   const token = localStorage.getItem("token");
-  const patientName = urlParams.get("patientName")
+  const patientName = urlParams.get("patientName");
 
   if (heading) {
     if (mode === "view") {
@@ -22,7 +23,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       heading.innerHTML = `Add <span>Prescription</span>`;
     }
   }
-
 
   // Pre-fill patient name
   if (patientNameInput && patientName) {
@@ -35,10 +35,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const response = await getPrescription(appointmentId, token);
       console.log("getPrescription :: ", response);
 
-      // Now, check if the prescription exists in the response and access it from the array
       if (response.prescription && response.prescription.length > 0) {
-        const existingPrescription = response.prescription[0]; // Access first prescription object
-        patientNameInput.value = existingPrescription.patientName || YOU;
+        const existingPrescription = response.prescription[0];
+        // FIX: was `YOU` (undefined variable) — should be the patientName from URL params
+        patientNameInput.value = existingPrescription.patientName || patientName;
         medicinesInput.value = existingPrescription.medication || "";
         dosageInput.value = existingPrescription.dosage || "";
         notesInput.value = existingPrescription.doctorNotes || "";
@@ -48,14 +48,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.warn("No existing prescription found or failed to load:", error);
     }
   }
+
   if (mode === 'view') {
-    // Make fields read-only
     patientNameInput.disabled = true;
     medicinesInput.disabled = true;
     dosageInput.disabled = true;
     notesInput.disabled = true;
-    savePrescriptionBtn.style.display = "none";  // Hide the save button
+    savePrescriptionBtn.style.display = "none";
   }
+
   // Save prescription on button click
   savePrescriptionBtn.addEventListener('click', async (e) => {
     e.preventDefault();

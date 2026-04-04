@@ -1,9 +1,10 @@
-// ===============================
-// Doctor Dashboard Logic
-// ===============================
+// doctorDashboard.js
 
-import { getAllAppointments } from "./services/patientService.js";
-import { createPatientRow } from "./components/patientRow.js";
+import { getAllAppointments } from "./services/appointmentRecordService.js";
+// FIX 1: was "./components/patientRow.js" — the actual file is "patientRows.js" (plural)
+import { createPatientRow } from "./components/patientRows.js";
+// FIX 2: renderContent was called but never imported
+import { renderContent } from "./utils/render.js";
 
 // Table body where rows will be inserted
 const tableBody = document.getElementById("patientTableBody");
@@ -66,6 +67,7 @@ async function loadAppointments() {
         }
 
         // Render each appointment
+        // FIX 3: createPatientRow expects (patient, appointmentId, doctorId) — was called with 1 arg
         appointments.forEach(app => {
             const patient = {
                 id: app.patientId,
@@ -75,7 +77,7 @@ async function loadAppointments() {
                 prescription: app.prescription
             };
 
-            const row = createPatientRow(patient);
+            const row = createPatientRow(patient, app.id, app.doctorId);
             tableBody.appendChild(row);
         });
 
@@ -94,6 +96,6 @@ async function loadAppointments() {
 // Initial Page Load
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
-    renderContent(); // assumed to set up header/footer
-    loadAppointments(); // load today's appointments
+    renderContent();
+    loadAppointments();
 });

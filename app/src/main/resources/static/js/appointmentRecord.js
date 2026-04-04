@@ -1,12 +1,18 @@
 // appointmentRecord.js
+
 import { getAppointments } from "./components/appointmentRow.js";
-import { getAppointmentRecord } from "./services/appointmentRecordService.js";
+// FIX: was importing `getAppointmentRecord` from appointmentRecordService — that function
+//      does not exist. The correct export is `getAllAppointments`.
+import { getAllAppointments } from "./services/appointmentRecordService.js";
 
 const tableBody = document.getElementById("patientTableBody");
 const filterSelect = document.getElementById("appointmentFilter");
 
+const token = localStorage.getItem("token");
+const selectedDate = new Date().toISOString().split("T")[0];
+
 async function loadAppointments(filter = "upcoming") {
-  const appointments = await getAppointmentRecord();
+  const appointments = await getAllAppointments(selectedDate, null, token);
 
   if (!appointments || appointments.length === 0) {
     tableBody.innerHTML = `<tr><td class="noPatientRecord" colspan='5'>No appointments found.</td></tr>`;

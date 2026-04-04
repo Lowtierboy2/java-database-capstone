@@ -1,6 +1,7 @@
-// adminDoctorAuth.js
+// adminDoctorAuth.js  (services/index.js)
 
-import { openModal } from "../components/modal.js";
+// FIX: was importing from "../components/modal.js" — file is named "modals.js"
+import { openModal } from "../components/modals.js";
 import { API_BASE_URL } from "../config/config.js";
 import { selectRole } from "../utils/render.js";
 

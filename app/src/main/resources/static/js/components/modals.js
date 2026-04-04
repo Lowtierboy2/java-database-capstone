@@ -1,8 +1,11 @@
-// modal.js
+// modals.js
 
-import { signupPatient, loginPatient } from "../services/patientService.js";
-import { adminLoginHandler, doctorLoginHandler } from "../index.js";
-import { doctorLoginHandler } from "../auth/doctorAuth.js";
+// FIX 1: removed duplicate `import { doctorLoginHandler }` that clashed between
+//         "../index.js" and "../auth/doctorAuth.js". Both handlers now come from
+//         "../services/index.js" where they are properly defined and exported.
+// FIX 2: patientService.js → patientServices.js (matching the actual filename)
+import { signupPatient, loginPatient } from "../services/patientServices.js";
+import { adminLoginHandler, doctorLoginHandler } from "../services/index.js";
 
 export function openModal(type) {
     let modalContent = "";

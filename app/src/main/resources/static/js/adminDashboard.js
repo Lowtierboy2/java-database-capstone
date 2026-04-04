@@ -1,8 +1,14 @@
-// ===============================
-// Admin Dashboard Logic
-// ===============================
+// adminDashboard.js
 
+// FIX: file had no imports at all, but called getDoctors, filterDoctors, saveDoctor,
+//      createDoctorCard, openModal, and closeModal — all of which come from other modules.
+import { getDoctors, filterDoctors, saveDoctor } from "./services/doctorServices.js";
+import { createDoctorCard } from "./components/doctorCard.js";
+import { openModal, closeModal } from "./components/modals.js";
+
+// ===============================
 // Load all doctor cards when DOM is ready
+// ===============================
 document.addEventListener("DOMContentLoaded", () => {
     loadDoctorCards();
 
