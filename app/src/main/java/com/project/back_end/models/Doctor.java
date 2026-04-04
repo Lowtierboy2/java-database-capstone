@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
-import jakarta.persistence.ElementCollection;
 import java.util.List;
 
 @Entity
@@ -39,8 +38,11 @@ public class Doctor {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    // FIX: was named "availability" — renamed to "availableTimes" to match the
+    //      JSON key the frontend expects (doctor.availableTimes in loggedPatient.js,
+    //      updateAppointment.js, and the "Book Now" booking overlay).
     @ElementCollection
-    private List<String> availability;
+    private List<String> availableTimes;
 
     // Getters and Setters
 }

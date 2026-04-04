@@ -1,31 +1,21 @@
 // adminDashboard.js
 
-// FIX: file had no imports at all, but called getDoctors, filterDoctors, saveDoctor,
-//      createDoctorCard, openModal, and closeModal — all of which come from other modules.
 import { getDoctors, filterDoctors, saveDoctor } from "./services/doctorServices.js";
 import { createDoctorCard } from "./components/doctorCard.js";
 import { openModal, closeModal } from "./components/modals.js";
 
-// ===============================
-// Load all doctor cards when DOM is ready
-// ===============================
 document.addEventListener("DOMContentLoaded", () => {
     loadDoctorCards();
 
-    // Search + Filters
     document.getElementById("searchBar").addEventListener("input", filterDoctorsOnChange);
     document.getElementById("timeFilter").addEventListener("change", filterDoctorsOnChange);
     document.getElementById("specialtyFilter").addEventListener("change", filterDoctorsOnChange);
 
-    // Add Doctor Button
     document.getElementById("addDoctorBtn").addEventListener("click", () => {
         openModal("addDoctor");
     });
 });
 
-// ===============================
-// Load All Doctors
-// ===============================
 async function loadDoctorCards() {
     try {
         const doctors = await getDoctors();
@@ -35,16 +25,17 @@ async function loadDoctorCards() {
     }
 }
 
-// ===============================
-// Filter Doctors
-// ===============================
 async function filterDoctorsOnChange() {
     const name = document.getElementById("searchBar").value.trim() || null;
     const time = document.getElementById("timeFilter").value || null;
     const specialty = document.getElementById("specialtyFilter").value || null;
 
     try {
-        const doctors = await filterDoctors(name, time, specialty);
+        // FIX: filterDoctors() returns { doctors: [...] }, not a bare array.
+        //      The previous code did `doctors.length` on the whole response object
+        //      (which has no .length), so the empty check always failed.
+        const response = await filterDoctors(name, time, specialty);
+        const doctors = response.doctors || [];
 
         if (doctors.length === 0) {
             document.getElementById("content").innerHTML =
@@ -59,9 +50,6 @@ async function filterDoctorsOnChange() {
     }
 }
 
-// ===============================
-// Render Doctor Cards
-// ===============================
 function renderDoctorCards(doctors) {
     const content = document.getElementById("content");
     content.innerHTML = "";
@@ -72,9 +60,6 @@ function renderDoctorCards(doctors) {
     });
 }
 
-// ===============================
-// Add Doctor (Modal Form Submission)
-// ===============================
 async function adminAddDoctor() {
     const firstName = document.getElementById("doctorFirstName").value.trim();
     const lastName = document.getElementById("doctorLastName").value.trim();
@@ -82,7 +67,13 @@ async function adminAddDoctor() {
     const phone = document.getElementById("doctorPhone").value.trim();
     const password = document.getElementById("doctorPassword").value.trim();
     const specialty = document.getElementById("doctorSpecialty").value.trim();
-    const availableTime = document.getElementById("doctorAvailableTime").value.trim();
+
+    // FIX: the modal uses checkboxes (name="availability") for time slots, not a
+    //      text input with id="doctorAvailableTime". The previous code read a
+    //      non-existent input, so availableTime was always "".
+    //      Collect all checked checkbox values into an array instead.
+    const checkedBoxes = document.querySelectorAll('input[name="availability"]:checked');
+    const availableTimes = Array.from(checkedBoxes).map(cb => cb.value);
 
     const token = localStorage.getItem("token");
     if (!token) {
@@ -97,7 +88,7 @@ async function adminAddDoctor() {
         phone,
         password,
         specialty,
-        availableTime
+        availableTimes   // FIX: was "availableTime" (singular string) — now matches Doctor model field
     };
 
     try {

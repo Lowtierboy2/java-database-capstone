@@ -10,18 +10,24 @@
     <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
     <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}" />
 
-    <!-- JS Components & Utilities -->
-    <script defer th:src="@{/js/components/header.js}"></script>
-    <script defer th:src="@{/js/components/modal.js}"></script>
-    <script defer th:src="@{/js/components/doctorCard.js}"></script>
-    <script defer th:src="@{/js/utils/render.js}"></script>
-    <script defer th:src="@{/js/utils/util.js}"></script>
+    <!--
+        FIX 1: was @{/js/components/modal.js} — file is named "modals.js"
+        FIX 2: was @{/js/utils/render.js} and @{/js/utils/util.js} — there is no utils/
+               subfolder; files live at /js/render.js and /js/util.js
+        FIX 3: header.js, footer.js, render.js all use ES module import/export — they must
+               be loaded as type="module", otherwise the browser throws SyntaxError on
+               the export keyword.
+        FIX 4: doctorCard.js and modals.js are already pulled in via the adminDashboard.js
+               module graph — removed the duplicate non-module script tags for them.
+    -->
+    <script type="module" defer th:src="@{/js/components/header.js}"></script>
+    <script type="module" defer th:src="@{/js/components/footer.js}"></script>
 
-    <!-- Page-Specific JS -->
+    <!-- Page-Specific JS (module — imports render.js, util.js, services, components) -->
     <script type="module" defer th:src="@{/js/adminDashboard.js}"></script>
 </head>
 
-<body  >
+<body>
 
 <div class="container">
     <div class="wrapper">
@@ -78,4 +84,3 @@
 
 </body>
 </html>
-

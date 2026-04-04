@@ -1,16 +1,13 @@
 // adminDoctorAuth.js  (services/index.js)
 
-// FIX: was importing from "../components/modal.js" — file is named "modals.js"
 import { openModal } from "../components/modals.js";
 import { API_BASE_URL } from "../config/config.js";
-import { selectRole } from "../utils/render.js";
+// FIX: was "../utils/render.js" — there is no utils/ subfolder; the file lives at ../render.js
+import { selectRole } from "../render.js";
 
 const ADMIN_API = `${API_BASE_URL}/auth/admin/login`;
 const DOCTOR_API = `${API_BASE_URL}/auth/doctor/login`;
 
-// ===============================
-// ATTACH LOGIN BUTTON LISTENERS
-// ===============================
 window.addEventListener("DOMContentLoaded", () => {
   const adminBtn = document.getElementById("adminBtn");
   const doctorBtn = document.getElementById("doctorBtn");
@@ -30,9 +27,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ===============================
-// ADMIN LOGIN HANDLER
-// ===============================
 export async function adminLoginHandler() {
   try {
     const username = document.getElementById("username").value.trim();
@@ -61,9 +55,6 @@ export async function adminLoginHandler() {
   }
 }
 
-// ===============================
-// DOCTOR LOGIN HANDLER
-// ===============================
 export async function doctorLoginHandler() {
   try {
     const email = document.getElementById("email").value.trim();

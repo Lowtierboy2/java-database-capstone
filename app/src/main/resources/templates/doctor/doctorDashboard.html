@@ -11,17 +11,22 @@
     <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}" />
     <link rel="stylesheet" th:href="@{/assets/css/doctorDashboard.css}" />
 
-    <!-- JS Components & Utilities -->
-    <script defer th:src="@{/js/components/header.js}"></script>
-    <script defer th:src="@{/js/components/modal.js}"></script>
-    <script defer th:src="@{/js/utils/render.js}"></script>
-    <script defer th:src="@{/js/utils/util.js}"></script>
+    <!--
+        FIX 1: was @{/js/components/modal.js} — file is named "modals.js"
+        FIX 2: was @{/js/utils/render.js} and @{/js/utils/util.js} — files live at
+               /js/render.js and /js/util.js (no utils/ subfolder)
+        FIX 3: header.js and footer.js use export — must be type="module"
+        FIX 4: modals.js is already in the doctorDashboard.js module graph — removed
+               the duplicate non-module script tag.
+    -->
+    <script type="module" defer th:src="@{/js/components/header.js}"></script>
+    <script type="module" defer th:src="@{/js/components/footer.js}"></script>
 
     <!-- Page-Specific JS -->
     <script type="module" defer th:src="@{/js/doctorDashboard.js}"></script>
 </head>
 
-<body >
+<body>
 
 <div class="container">
     <div class="wrapper">

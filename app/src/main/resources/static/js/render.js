@@ -34,3 +34,11 @@ export function renderContent() {
     window.location.href = "/";
   }
 }
+
+// FIX: render.js is an ES module (it uses import/export), so its exports are NOT
+//      automatically available in the global scope. However, the HTML pages use
+//      inline handlers like onload="renderContent()" and onclick="selectRole('doctor')"
+//      which require these functions to be on window.
+//      Assigning them here bridges the module/global gap without changing every HTML page.
+window.renderContent = renderContent;
+window.selectRole = selectRole;

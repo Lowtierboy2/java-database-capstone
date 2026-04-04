@@ -1,6 +1,5 @@
 package com.project.back_end.models;
 
-
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,6 +20,15 @@ public class Prescription {
 
     @NotNull
     private Integer appointmentId;
+
+    // FIX: added "dosage" — frontend (addPrescription.js) sends this field in the
+    //      prescription payload but the model had no corresponding field.
+    private String dosage;
+
+    // FIX: added "doctorNotes" — frontend sends this as well (maps to the "notes"
+    //      textarea in addPrescription.html). The previous model only had "instructions"
+    //      (List<String>) which didn't match the string the frontend sends.
+    private String doctorNotes;
 
     private List<String> instructions;
 

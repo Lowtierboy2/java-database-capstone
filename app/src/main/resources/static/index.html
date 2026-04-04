@@ -14,11 +14,16 @@
     <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
     <link rel="stylesheet" th:href="@{/assets/css/index.css}" />
 
-    <!-- Utility & Component Scripts -->
-    <script defer th:src="@{/js/utils/util.js}"></script>
-    <script defer th:src="@{/js/utils/render.js}"></script>
-    <script defer th:src="@{/js/components/header.js}"></script>
-    <script defer th:src="@{/js/components/footer.js}"></script>
+    <!--
+        FIX: was @{/js/utils/util.js} and @{/js/utils/render.js} — there is no utils/
+             subfolder; the files live at /js/util.js and /js/render.js.
+             Also added type="module" because these files use import/export syntax —
+             loading them as classic scripts causes SyntaxError on the export keyword.
+    -->
+    <script type="module" defer th:src="@{/js/util.js}"></script>
+    <script type="module" defer th:src="@{/js/render.js}"></script>
+    <script type="module" defer th:src="@{/js/components/header.js}"></script>
+    <script type="module" defer th:src="@{/js/components/footer.js}"></script>
 
     <!-- Page-Specific Logic -->
     <script type="module" defer th:src="@{/js/index.js}"></script>
