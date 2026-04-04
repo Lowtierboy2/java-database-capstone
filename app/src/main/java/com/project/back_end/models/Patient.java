@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 
@@ -34,6 +36,9 @@ public class Patient {
 
     @NotNull
     private LocalDate dateOfBirth;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     // Getters and Setters
 }

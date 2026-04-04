@@ -1,4 +1,5 @@
 package com.project.back_end.models;
+import jakarta.validation.constraints.Future;
 
 
 import jakarta.persistence.*;
@@ -23,6 +24,7 @@ public class Appointment {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
+    @Future(message = "Appointment date must be in the future")
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime appointmentDate;
@@ -35,6 +37,10 @@ public class Appointment {
     // Helper method
     public LocalDateTime getEndTime() {
         return appointmentDate.plusMinutes(30);
+    }
+    public String getFormattedAppointmentDate() {
+        if (appointmentDate == null) return null;
+        return appointmentDate.toString(); // or use a formatter later in the UI
     }
 
     // Getters and Setters

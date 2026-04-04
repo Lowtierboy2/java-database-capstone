@@ -1,10 +1,12 @@
 package com.project.back_end.models;
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
+import jakarta.persistence.ElementCollection;
+import java.util.List;
 
 @Entity
 @Table(name = "doctors")
@@ -33,6 +35,12 @@ public class Doctor {
 
     @NotNull
     private String phone;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
+
+    @ElementCollection
+    private List<String> availability;
 
     // Getters and Setters
 }
