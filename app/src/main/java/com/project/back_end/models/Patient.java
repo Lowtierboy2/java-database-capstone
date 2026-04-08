@@ -26,7 +26,7 @@ public class Patient {
 
     @NotNull
     @Email
-    @Column(unique = true)
+    @Column(unique = true, length = 191)
     private String email;
 
     @NotNull

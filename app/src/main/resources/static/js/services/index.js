@@ -2,11 +2,10 @@
 
 import { openModal } from "../components/modals.js";
 import { API_BASE_URL } from "../config/config.js";
-// FIX: was "../utils/render.js" — there is no utils/ subfolder; the file lives at ../render.js
 import { selectRole } from "../render.js";
 
-const ADMIN_API = `${API_BASE_URL}/auth/admin/login`;
-const DOCTOR_API = `${API_BASE_URL}/auth/doctor/login`;
+const ADMIN_API = `${API_BASE_URL}/admin/login`;
+const DOCTOR_API = `${API_BASE_URL}/doctor/login`;
 
 window.addEventListener("DOMContentLoaded", () => {
   const adminBtn = document.getElementById("adminBtn");
@@ -32,7 +31,7 @@ export async function adminLoginHandler() {
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
 
-    const admin = { username, password };
+    const admin = { username, passwordHash: password };
 
     const response = await fetch(ADMIN_API, {
       method: "POST",
