@@ -10,6 +10,7 @@ const DOCTOR_API = `${API_BASE_URL}/doctor/login`;
 window.addEventListener("DOMContentLoaded", () => {
   const adminBtn = document.getElementById("adminBtn");
   const doctorBtn = document.getElementById("doctorBtn");
+  const patientBtn = document.getElementById("patientBtn"); // ADD THIS
 
   if (adminBtn) {
     adminBtn.addEventListener("click", () => {
@@ -24,7 +25,15 @@ window.addEventListener("DOMContentLoaded", () => {
       openModal("doctorLogin");
     });
   }
+
+  if (patientBtn) { // ADD THIS
+    patientBtn.addEventListener("click", () => {
+      selectRole("patient");
+      openModal("patientLogin"); // or redirect, depending on your logic
+    });
+  }
 });
+
 
 export async function adminLoginHandler() {
   try {
