@@ -3,7 +3,6 @@ package com.project.back_end.models;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.List;
 
 @Document(collection = "prescriptions")
@@ -19,18 +18,30 @@ public class Prescription {
     private String medication;
 
     @NotNull
-    private Integer appointmentId;
+    private Long appointmentId;
 
-    // FIX: added "dosage" — frontend (addPrescription.js) sends this field in the
-    //      prescription payload but the model had no corresponding field.
     private String dosage;
-
-    // FIX: added "doctorNotes" — frontend sends this as well (maps to the "notes"
-    //      textarea in addPrescription.html). The previous model only had "instructions"
-    //      (List<String>) which didn't match the string the frontend sends.
     private String doctorNotes;
-
     private List<String> instructions;
 
-    // Getters and Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getPatientName() { return patientName; }
+    public void setPatientName(String patientName) { this.patientName = patientName; }
+
+    public String getMedication() { return medication; }
+    public void setMedication(String medication) { this.medication = medication; }
+
+    public Long getAppointmentId() { return appointmentId; }
+    public void setAppointmentId(Long appointmentId) { this.appointmentId = appointmentId; }
+
+    public String getDosage() { return dosage; }
+    public void setDosage(String dosage) { this.dosage = dosage; }
+
+    public String getDoctorNotes() { return doctorNotes; }
+    public void setDoctorNotes(String doctorNotes) { this.doctorNotes = doctorNotes; }
+
+    public List<String> getInstructions() { return instructions; }
+    public void setInstructions(List<String> instructions) { this.instructions = instructions; }
 }

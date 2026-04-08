@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Future;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,7 +12,7 @@ public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer appointmentId;
+    private Long appointmentId;
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
@@ -23,10 +22,6 @@ public class Appointment {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    // FIX: was named "appointmentDate" — renamed to "appointmentTime" to match the
-    //      JSON key the frontend sends: { appointmentTime: "2025-01-01T09:00:00" }.
-    //      Jackson deserializes by matching the JSON key to the Java field name.
-    //      Also updated @JsonFormat to accept the ISO-8601 format the frontend sends.
     @Future(message = "Appointment date must be in the future")
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -37,15 +32,29 @@ public class Appointment {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    // Helper method
     public LocalDateTime getEndTime() {
-        return appointmentTime.plusMinutes(30);
+        return appointmentTime != null ? appointmentTime.plusMinutes(30) : null;
     }
 
     public String getFormattedAppointmentTime() {
-        if (appointmentTime == null) return null;
-        return appointmentTime.toString();
+        return appointmentTime != null ? appointmentTime.toString() : null;
     }
 
-    // Getters and Setters
+    public Long getAppointmentId() { return appointmentId; }
+    public void setAppointmentId(Long appointmentId) { this.appointmentId = appointmentId; }
+
+    public Patient getPatient() { return patient; }
+    public void setPatient(Patient patient) { this.patient = patient; }
+
+    public Doctor getDoctor() { return doctor; }
+    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+
+    public LocalDateTime getAppointmentTime() { return appointmentTime; }
+    public void setAppointmentTime(LocalDateTime appointmentTime) { this.appointmentTime = appointmentTime; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 }
