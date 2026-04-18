@@ -2,7 +2,7 @@
 
 import { API_BASE_URL } from "../config/config.js";
 
-const PATIENT_API = `${API_BASE_URL}/patient`;
+const PATIENT_API = `${API_BASE_URL}/api/patient`;
 
 // ===============================
 // SIGNUP PATIENT
@@ -12,7 +12,7 @@ export async function signupPatient(data) {
     const response = await fetch(`${PATIENT_API}`, {
       method: "POST",
       headers: {
-        "Content-type": "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -30,7 +30,6 @@ export async function signupPatient(data) {
   }
 }
 
-// backward-compatible alias if some code still calls patientSignup
 export const patientSignup = signupPatient;
 
 // ===============================
@@ -59,7 +58,6 @@ export async function loginPatient(data) {
   }
 }
 
-// backward-compatible alias if some code still calls patientLogin
 export const patientLogin = loginPatient;
 
 // ===============================
@@ -80,7 +78,6 @@ export async function getPatientData(token) {
 
 // ===============================
 // GET PATIENT APPOINTMENTS
-// (USED BY DOCTOR & PATIENT DASHBOARDS)
 // ===============================
 export async function getPatientAppointments(id, token, user) {
   try {
@@ -102,23 +99,17 @@ export async function getPatientAppointments(id, token, user) {
 // ===============================
 export async function filterAppointments(condition, name, token) {
   try {
-    const response = await fetch(
-      `${PATIENT_API}/filter/${condition}/${name}/${token}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const safeCondition = condition && condition.trim() ? condition : "null";
+    const safeName = name && name.trim() ? name : "null";
+
+    const response = await fetch(`${PATIENT_API}/filter/${safeCondition}/${safeName}/${token}`);
 
     if (response.ok) {
-      const data = await response.json();
-      return data;
-    } else {
-      console.error("Failed to fetch appointments:", response.statusText);
-      return { appointments: [] };
+      return await response.json();
     }
+
+    console.error("Failed to fetch appointments:", response.statusText);
+    return { appointments: [] };
   } catch (error) {
     console.error("Error:", error);
     alert("Something went wrong!");
