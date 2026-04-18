@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -37,11 +38,18 @@ public class AppointmentController {
         ResponseEntity<Map<String, String>> tokenCheck = service.validateToken(token, "patient");
         if (tokenCheck != null) return tokenCheck;
 
+        Map<String, String> response = new HashMap<>();
+        if (appointment.getDoctor() == null || appointment.getDoctor().getDoctorId() == null
+                || appointment.getPatient() == null || appointment.getPatient().getPatientId() == null
+                || appointment.getAppointmentTime() == null) {
+            response.put("message", "Invalid appointment payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
         int valid = service.validateAppointment(
                 appointment.getDoctor().getDoctorId(),
                 appointment.getAppointmentTime().toString());
 
-        java.util.Map<String, String> response = new java.util.HashMap<>();
         if (valid == -1) {
             response.put("message", "Doctor not found");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -65,6 +73,13 @@ public class AppointmentController {
                                                                  @PathVariable String token) {
         ResponseEntity<Map<String, String>> tokenCheck = service.validateToken(token, "patient");
         if (tokenCheck != null) return tokenCheck;
+
+        if (appointment.getAppointmentId() == null || appointment.getDoctor() == null
+                || appointment.getDoctor().getDoctorId() == null || appointment.getAppointmentTime() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Invalid appointment payload"));
+        }
+
         return appointmentService.updateAppointment(appointment, token);
     }
 
