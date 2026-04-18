@@ -1,18 +1,12 @@
 // modals.js
 
-// FIX 1: removed duplicate `import { doctorLoginHandler }` that clashed between
-//         "../index.js" and "../auth/doctorAuth.js". Both handlers now come from
-//         "../services/index.js" where they are properly defined and exported.
-// FIX 2: patientService.js → patientServices.js (matching the actual filename)
 import { signupPatient, loginPatient } from "../services/patientServices.js";
 import { adminLoginHandler, doctorLoginHandler } from "../services/index.js";
+import { selectRole } from "../render.js";
 
 export function openModal(type) {
     let modalContent = "";
 
-    // ===============================
-    // ADD DOCTOR (ADMIN)
-    // ===============================
     if (type === "addDoctor") {
         modalContent = `
             <h2>Add Doctor</h2>
@@ -43,51 +37,32 @@ export function openModal(type) {
 
             <button class="dashboard-btn" id="saveDoctorBtn">Save</button>
         `;
-    }
-
-    // ===============================
-    // PATIENT LOGIN
-    // ===============================
-    else if (type === "patientLogin") {
+    } else if (type === "patientLogin") {
         modalContent = `
             <h2>Patient Login</h2>
             <input type="email" id="email" placeholder="Email" class="input-field">
             <input type="password" id="password" placeholder="Password" class="input-field">
             <button class="dashboard-btn" id="loginBtn">Login</button>
         `;
-    }
-
-    // ===============================
-    // PATIENT SIGNUP
-    // ===============================
-    else if (type === "patientSignup") {
+    } else if (type === "patientSignup") {
         modalContent = `
             <h2>Patient Signup</h2>
-            <input type="text" id="name" placeholder="Name" class="input-field">
+            <input type="text" id="firstName" placeholder="First Name" class="input-field">
+            <input type="text" id="lastName" placeholder="Last Name" class="input-field">
             <input type="email" id="email" placeholder="Email" class="input-field">
             <input type="password" id="password" placeholder="Password" class="input-field">
             <input type="text" id="phone" placeholder="Phone" class="input-field">
-            <input type="text" id="address" placeholder="Address" class="input-field">
+            <input type="date" id="dateOfBirth" class="input-field">
             <button class="dashboard-btn" id="signupBtn">Signup</button>
         `;
-    }
-
-    // ===============================
-    // ADMIN LOGIN
-    // ===============================
-    else if (type === "adminLogin") {
+    } else if (type === "adminLogin") {
         modalContent = `
             <h2>Admin Login</h2>
             <input type="text" id="username" placeholder="Username" class="input-field">
             <input type="password" id="password" placeholder="Password" class="input-field">
             <button class="dashboard-btn" id="adminLoginBtn">Login</button>
         `;
-    }
-
-    // ===============================
-    // DOCTOR LOGIN
-    // ===============================
-    else if (type === "doctorLogin") {
+    } else if (type === "doctorLogin") {
         modalContent = `
             <h2>Doctor Login</h2>
             <input type="email" id="email" placeholder="Email" class="input-field">
@@ -96,19 +71,61 @@ export function openModal(type) {
         `;
     }
 
-    // Render modal
     document.getElementById("modal-body").innerHTML = modalContent;
     document.getElementById("modal").style.display = "block";
-
-    // Close button
     document.getElementById("modal-close").onclick = closeModal;
 
-    // Attach handlers
-    if (type === "patientSignup") document.getElementById("signupBtn").onclick = signupPatient;
-    if (type === "patientLogin") document.getElementById("loginBtn").onclick = loginPatient;
-    if (type === "addDoctor") document.getElementById("saveDoctorBtn").onclick = adminAddDoctor;
+    if (type === "patientSignup") document.getElementById("signupBtn").onclick = handlePatientSignup;
+    if (type === "patientLogin") document.getElementById("loginBtn").onclick = handlePatientLogin;
+    if (type === "addDoctor") document.getElementById("saveDoctorBtn").onclick = () => {
+        if (typeof window.adminAddDoctor === "function") {
+            window.adminAddDoctor();
+        } else {
+            alert("Doctor form handler is not available on this page.");
+        }
+    };
     if (type === "adminLogin") document.getElementById("adminLoginBtn").onclick = adminLoginHandler;
     if (type === "doctorLogin") document.getElementById("doctorLoginBtn").onclick = doctorLoginHandler;
+}
+
+async function handlePatientSignup(e) {
+    e.preventDefault();
+
+    const payload = {
+        firstName: document.getElementById("firstName").value.trim(),
+        lastName: document.getElementById("lastName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        dateOfBirth: document.getElementById("dateOfBirth").value
+    };
+
+    const { success, message } = await signupPatient(payload);
+    if (success) {
+        alert(message || "Signup successful");
+        closeModal();
+        openModal("patientLogin");
+    } else {
+        alert(message || "Signup failed");
+    }
+}
+
+async function handlePatientLogin(e) {
+    e.preventDefault();
+
+    const payload = {
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value.trim()
+    };
+
+    const { success, token, message } = await loginPatient(payload);
+    if (success && token) {
+        localStorage.setItem("token", token);
+        closeModal();
+        selectRole("loggedPatient");
+    } else {
+        alert(message || "Login failed");
+    }
 }
 
 export function closeModal() {
