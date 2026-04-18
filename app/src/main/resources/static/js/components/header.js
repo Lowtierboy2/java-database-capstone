@@ -1,17 +1,20 @@
 // header.js
 
 import { openModal } from "./modals.js";
+import { clearRole, getRole } from "../util.js";
 
 export function renderHeader() {
     const headerDiv = document.getElementById("header");
     if (!headerDiv) return;
 
-    if (window.location.pathname.endsWith("/")) {
-        localStorage.removeItem("userRole");
+    const path = window.location.pathname;
+    const isLandingPage = path === "/" || path.endsWith("/index.html");
+
+    if (isLandingPage) {
+        clearRole();
 
         headerDiv.innerHTML = `
             <header class="header">
-                <!-- FIX: was class="logo-section" — style.css defines .logo-link, not .logo-section -->
                 <div class="logo-link">
                     <img src="/assets/images/logo/logo.png" alt="Hospital CMS Logo" class="logo-img">
                     <span class="logo-title">Hospital CMS</span>
@@ -21,7 +24,7 @@ export function renderHeader() {
         return;
     }
 
-    const role = localStorage.getItem("userRole");
+    const role = getRole();
     const token = localStorage.getItem("token");
 
     let headerContent = `
@@ -34,7 +37,7 @@ export function renderHeader() {
     `;
 
     if ((role === "loggedPatient" || role === "admin" || role === "doctor") && !token) {
-        localStorage.removeItem("userRole");
+        clearRole();
         alert("Session expired or invalid login. Please log in again.");
         window.location.href = "/";
         return;
@@ -47,7 +50,7 @@ export function renderHeader() {
         `;
     } else if (role === "doctor") {
         headerContent += `
-            <button class="nav-btn" onclick="window.location.href='/doctor/doctorDashboard'">Home</button>
+            <button class="nav-btn" id="doctorHomeBtn">Home</button>
             <a class="nav-link" href="#" id="logoutBtn">Logout</a>
         `;
     } else if (role === "patient") {
@@ -69,35 +72,33 @@ export function renderHeader() {
     `;
 
     headerDiv.innerHTML = headerContent;
-    attachHeaderButtonListeners();
+    attachHeaderButtonListeners(token);
 }
 
-function attachHeaderButtonListeners() {
+function attachHeaderButtonListeners(token) {
     const loginBtn = document.getElementById("patientLoginBtn");
     const signupBtn = document.getElementById("patientSignupBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const logoutPatientBtn = document.getElementById("logoutPatientBtn");
+    const doctorHomeBtn = document.getElementById("doctorHomeBtn");
 
     if (loginBtn) loginBtn.addEventListener("click", () => openModal("patientLogin"));
     if (signupBtn) signupBtn.addEventListener("click", () => openModal("patientSignup"));
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
-    if (logoutPatientBtn) logoutPatientBtn.addEventListener("click", logoutPatient);
+    if (logoutPatientBtn) logoutPatientBtn.addEventListener("click", logout);
+    if (doctorHomeBtn && token) {
+        doctorHomeBtn.addEventListener("click", () => {
+            window.location.href = `/doctorDashboard/${token}`;
+        });
+    }
 }
 
 function logout() {
-    localStorage.removeItem("userRole");
+    clearRole();
     localStorage.removeItem("token");
     window.location.href = "/";
 }
 
-function logoutPatient() {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("token");
-    window.location.href = "/";
-}
-
-// FIX: openModal is called from inline onclick in the header's "Add Doctor" button.
-//      Since header.js is a module, openModal must be on window for inline handlers to reach it.
 window.openModal = openModal;
 
 document.addEventListener("DOMContentLoaded", renderHeader);
