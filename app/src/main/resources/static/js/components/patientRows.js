@@ -18,14 +18,12 @@ export function createPatientRow(patient, appointmentId, doctorId) {
         </td>
     `;
 
-    // Navigate to patient record
     tr.querySelector(".patient-id").addEventListener("click", () => {
-        window.location.href = `/patient/record?id=${patient.id}&doctorId=${doctorId}`;
+        window.location.href = `/pages/patientRecord.html?id=${patient.id}&doctorId=${doctorId}`;
     });
 
-    // Navigate to prescription page
     tr.querySelector(".prescription-btn").addEventListener("click", () => {
-        window.location.href = `/patient/add-prescription?appointmentId=${appointmentId}&patientName=${patient.name}`;
+        window.location.href = `/pages/addPrescription.html?appointmentId=${appointmentId}&patientName=${encodeURIComponent(patient.name)}`;
     });
 
     return tr;
