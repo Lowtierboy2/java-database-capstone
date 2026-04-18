@@ -5,16 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="../assets/images/logo/logo.png" />
-    <title>PatientDashboard</title>
+    <title>Patient Dashboard</title>
     <link rel="stylesheet" href="../assets/css/adminDashboard.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/patientDashboard.css">
-    <!--
-        FIX 1: render.js, util.js, header.js, footer.js all use ES module import/export.
-               Must be loaded as type="module" to avoid SyntaxError on export keyword.
-        FIX 2: render.js is now type="module" and exposes window.renderContent, so
-               onload="renderContent()" in <body> will still work.
-    -->
     <script type="module" src="../js/render.js" defer></script>
     <script type="module" src="../js/util.js" defer></script>
     <script type="module" src="../js/components/header.js" defer></script>
@@ -26,7 +20,7 @@
     <div class="wrapper">
         <div id="header"></div>
         <main class="main-content">
-            <input type="text" id="searchBar" class="searchBar" placeholder="Search Bar for custom output" />
+            <input type="text" id="searchBar" class="searchBar" placeholder="Search doctors by name" />
             <div class="filter-wrapper">
                 <select class="filter-select" id="filterTime">
                     <option value="">Sort by Time</option>
@@ -35,20 +29,11 @@
                 </select>
                 <select class="filter-select" id="filterSpecialty">
                     <option value="">Filter by Specialty</option>
-                    <option value="Cardiologist">Cardiologist</option>
-                    <option value="Dermatologist">Dermatologist</option>
-                    <option value="Neurologist">Neurologist</option>
-                    <option value="Pediatrician">Pediatrician</option>
-                    <option value="Orthopedic">Orthopedic</option>
-                    <option value="Gynecologist">Gynecologist</option>
-                    <option value="Psychiatrist">Psychiatrist</option>
-                    <option value="Dentist">Dentist</option>
-                    <option value="Ophthalmologist">Ophthalmologist</option>
-                    <option value="Ent">ENT Specialist</option>
-                    <option value="Urologist">Urologist</option>
-                    <option value="Oncologist">Oncologist</option>
-                    <option value="Gastroenterologist">Gastroenterologist</option>
-                    <option value="General">General Physician</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="Neurology">Neurology</option>
+                    <option value="Pediatrics">Pediatrics</option>
+                    <option value="General Medicine">General Medicine</option>
                 </select>
             </div>
             <div id="content"></div>
@@ -58,10 +43,6 @@
 </div>
 <div id="modal" class="modal">
     <div class="modal-content">
-        <!--
-            FIX 3: was id="closeModal" — modals.js does getElementById("modal-close")
-                    to attach the close handler. The mismatch meant the X button never closed the modal.
-        -->
         <span class="close" id="modal-close">&times;</span>
         <div id="modal-body"></div>
     </div>
