@@ -1,6 +1,6 @@
 // render.js
 
-import { setRole, getRole } from "./util.js";
+import { getRole, setRole } from "./util.js";
 
 // ===============================
 // SELECT ROLE (AFTER SUCCESSFUL LOGIN)
@@ -23,6 +23,10 @@ export function selectRole(role) {
     window.location.href = "/pages/patientDashboard.html";
     return;
   }
+
+  if (role === "loggedPatient" && token) {
+    window.location.href = "/pages/loggedPatientDashboard.html";
+  }
 }
 
 // ===============================
@@ -35,10 +39,5 @@ export function renderContent() {
   }
 }
 
-// FIX: render.js is an ES module (it uses import/export), so its exports are NOT
-//      automatically available in the global scope. However, the HTML pages use
-//      inline handlers like onload="renderContent()" and onclick="selectRole('doctor')"
-//      which require these functions to be on window.
-//      Assigning them here bridges the module/global gap without changing every HTML page.
 window.renderContent = renderContent;
 window.selectRole = selectRole;
