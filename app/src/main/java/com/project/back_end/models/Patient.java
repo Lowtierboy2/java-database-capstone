@@ -1,5 +1,6 @@
 package com.project.back_end.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Email;
@@ -35,6 +36,7 @@ public class Patient {
     @NotNull
     private LocalDate dateOfBirth;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @CreationTimestamp
