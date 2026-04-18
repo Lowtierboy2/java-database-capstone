@@ -14,14 +14,14 @@ import java.util.List;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    @Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor d LEFT JOIN FETCH d.availableTimes WHERE a.doctor.doctorId = :doctorId AND a.appointmentTime BETWEEN :start AND :end")
+    @Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor d LEFT JOIN FETCH d.availableTimes LEFT JOIN FETCH a.patient WHERE a.doctor.doctorId = :doctorId AND a.appointmentTime BETWEEN :start AND :end")
     List<Appointment> findByDoctorIdAndAppointmentTimeBetween(
             @Param("doctorId") Long doctorId,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
-    @Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor LEFT JOIN FETCH a.patient WHERE a.doctor.doctorId = :doctorId AND LOWER(a.patient.firstName) LIKE LOWER(CONCAT('%', :patientName, '%')) AND a.appointmentTime BETWEEN :start AND :end")
-    List<Appointment> findByDoctorIdAndPatient_NameContainingIgnoreCaseAndAppointmentTimeBetween(
+    @Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor LEFT JOIN FETCH a.patient WHERE a.doctor.doctorId = :doctorId AND LOWER(CONCAT(a.patient.firstName, ' ', a.patient.lastName)) LIKE LOWER(CONCAT('%', :patientName, '%')) AND a.appointmentTime BETWEEN :start AND :end")
+    List<Appointment> findByDoctorIdAndPatientNameContainingIgnoreCaseAndAppointmentTimeBetween(
             @Param("doctorId") Long doctorId,
             @Param("patientName") String patientName,
             @Param("start") LocalDateTime start,
@@ -32,19 +32,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query("DELETE FROM Appointment a WHERE a.doctor.doctorId = :doctorId")
     void deleteAllByDoctorId(@Param("doctorId") Long doctorId);
 
-    List<Appointment> findByPatient_PatientId(Long patientId);
+    @Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor LEFT JOIN FETCH a.patient WHERE a.patient.patientId = :patientId")
+    List<Appointment> findByPatient_PatientId(@Param("patientId") Long patientId);
 
-    @Query("SELECT a FROM Appointment a WHERE a.patient.patientId = :patientId AND a.status = :status ORDER BY a.appointmentTime ASC")
+    @Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor LEFT JOIN FETCH a.patient WHERE a.patient.patientId = :patientId AND a.status = :status ORDER BY a.appointmentTime ASC")
     List<Appointment> findByPatient_IdAndStatusOrderByAppointmentTimeAsc(
             @Param("patientId") Long patientId,
             @Param("status") String status);
 
-    @Query("SELECT a FROM Appointment a WHERE a.doctor.firstName LIKE %:doctorName% AND a.patient.patientId = :patientId")
+    @Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor LEFT JOIN FETCH a.patient WHERE LOWER(CONCAT(a.doctor.firstName, ' ', a.doctor.lastName)) LIKE LOWER(CONCAT('%', :doctorName, '%')) AND a.patient.patientId = :patientId")
     List<Appointment> filterByDoctorNameAndPatientId(
             @Param("doctorName") String doctorName,
             @Param("patientId") Long patientId);
 
-    @Query("SELECT a FROM Appointment a WHERE a.doctor.firstName LIKE %:doctorName% AND a.patient.patientId = :patientId AND a.status = :status")
+    @Query("SELECT a FROM Appointment a LEFT JOIN FETCH a.doctor LEFT JOIN FETCH a.patient WHERE LOWER(CONCAT(a.doctor.firstName, ' ', a.doctor.lastName)) LIKE LOWER(CONCAT('%', :doctorName, '%')) AND a.patient.patientId = :patientId AND a.status = :status")
     List<Appointment> filterByDoctorNameAndPatientIdAndStatus(
             @Param("doctorName") String doctorName,
             @Param("patientId") Long patientId,
