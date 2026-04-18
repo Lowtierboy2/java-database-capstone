@@ -3,37 +3,36 @@
 import { openModal } from "../components/modals.js";
 import { API_BASE_URL } from "../config/config.js";
 import { selectRole } from "../render.js";
+import { setRole } from "../util.js";
 
-const ADMIN_API = `${API_BASE_URL}/admin/login`;
-const DOCTOR_API = `${API_BASE_URL}/doctor/login`;
+const ADMIN_API = `${API_BASE_URL}/api/admin/login`;
+const DOCTOR_API = `${API_BASE_URL}/api/doctors/login`;
 
 window.addEventListener("DOMContentLoaded", () => {
   const adminBtn = document.getElementById("adminBtn");
   const doctorBtn = document.getElementById("doctorBtn");
-  const patientBtn = document.getElementById("patientBtn"); // ADD THIS
+  const patientBtn = document.getElementById("patientBtn");
 
   if (adminBtn) {
     adminBtn.addEventListener("click", () => {
-      selectRole("admin");
+      setRole("admin");
       openModal("adminLogin");
     });
   }
 
   if (doctorBtn) {
     doctorBtn.addEventListener("click", () => {
-      selectRole("doctor");
+      setRole("doctor");
       openModal("doctorLogin");
     });
   }
 
-  if (patientBtn) { // ADD THIS
+  if (patientBtn) {
     patientBtn.addEventListener("click", () => {
       selectRole("patient");
-      openModal("patientLogin"); // or redirect, depending on your logic
     });
   }
 });
-
 
 export async function adminLoginHandler() {
   try {
