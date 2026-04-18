@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/doctors")
+@RequestMapping("${api.path}doctors")
 public class DoctorController {
 
     private final DoctorService doctorService;
@@ -36,7 +36,7 @@ public class DoctorController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Map<String, Object>> getDoctor() {
+    public ResponseEntity<Map<String, Object>> getDoctors() {
         Map<String, Object> response = new HashMap<>();
         List<Doctor> doctors = doctorService.getDoctors();
         response.put("doctors", doctors);
@@ -108,10 +108,10 @@ public class DoctorController {
         }
     }
 
-    @GetMapping("/filter/{name}/{time}/{speciality}")
+    @GetMapping("/filter/{name}/{time}/{specialty}")
     public ResponseEntity<Map<String, Object>> filter(@PathVariable String name,
                                                       @PathVariable String time,
-                                                      @PathVariable String speciality) {
-        return service.filterDoctor(name, time, speciality);
+                                                      @PathVariable String specialty) {
+        return service.filterDoctor(name, time, specialty);
     }
 }
