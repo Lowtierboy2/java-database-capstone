@@ -9,6 +9,8 @@ import com.project.back_end.repo.PatientRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +53,7 @@ public class Service {
         Map<String, Object> response = new HashMap<>();
         try {
             Admin found = adminRepository.findByUsername(admin.getUsername());
-            if (found == null) {
+            if (found == null || found.getPasswordHash() == null || admin.getPasswordHash() == null) {
                 response.put("message", "Invalid credentials");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
@@ -78,19 +80,19 @@ public class Service {
         boolean hasSpecialty = specialty != null && !specialty.equals("null") && !specialty.isBlank();
 
         if (hasName && hasTime && hasSpecialty) {
-            doctors = doctorService.filterDoctorsByNameSpecilityandTime(name, specialty, time);
+            doctors = doctorService.filterDoctorsByNameSpecialtyAndTime(name, specialty, time);
         } else if (hasName && hasTime) {
             doctors = doctorService.filterDoctorByNameAndTime(name, time);
         } else if (hasName && hasSpecialty) {
-            doctors = doctorService.filterDoctorByNameAndSpecility(name, specialty);
+            doctors = doctorService.filterDoctorByNameAndSpecialty(name, specialty);
         } else if (hasTime && hasSpecialty) {
-            doctors = doctorService.filterDoctorByTimeAndSpecility(specialty, time);
+            doctors = doctorService.filterDoctorByTimeAndSpecialty(specialty, time);
         } else if (hasName) {
             doctors = doctorService.findDoctorByName(name);
         } else if (hasTime) {
             doctors = doctorService.filterDoctorsByTime(time);
         } else if (hasSpecialty) {
-            doctors = doctorService.filterDoctorBySpecility(specialty);
+            doctors = doctorService.filterDoctorBySpecialty(specialty);
         } else {
             doctors = doctorService.getDoctors();
         }
@@ -103,13 +105,27 @@ public class Service {
         try {
             Doctor doctor = doctorRepository.findById(doctorId).orElse(null);
             if (doctor == null) return -1;
+
             List<String> slots = doctor.getAvailableTimes();
-            if (slots == null) return 0;
-            String requestedTime = appointmentTime.substring(11, 16);
-            for (String slot : slots) {
-                String slotStart = slot.split("-")[0];
-                if (slotStart.equals(requestedTime)) return 1;
+            if (slots == null || slots.isEmpty()) return 0;
+
+            String requestedTime = LocalDateTime.parse(appointmentTime)
+                    .toLocalTime()
+                    .withSecond(0)
+                    .withNano(0)
+                    .toString();
+            if (requestedTime.length() > 5) {
+                requestedTime = requestedTime.substring(0, 5);
             }
+
+            for (String slot : slots) {
+                String[] parts = slot.split("-");
+                if (parts.length > 0 && parts[0].equals(requestedTime)) {
+                    return 1;
+                }
+            }
+            return 0;
+        } catch (DateTimeParseException e) {
             return 0;
         } catch (Exception e) {
             return 0;
@@ -125,7 +141,7 @@ public class Service {
         Map<String, Object> response = new HashMap<>();
         try {
             Patient patient = patientRepository.findByEmail(email);
-            if (patient == null) {
+            if (patient == null || patient.getPassword() == null || password == null) {
                 response.put("message", "Invalid credentials");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
