@@ -2,7 +2,6 @@
 
 import { getAllAppointments } from "./services/appointmentRecordService.js";
 import { createPatientRow } from "./components/patientRows.js";
-// FIX: was "./utils/render.js" — there is no utils/ subfolder; file lives at ./render.js
 import { renderContent } from "./render.js";
 
 const tableBody = document.getElementById("patientTableBody");
@@ -36,13 +35,12 @@ async function loadAppointments() {
         if (!appointments || appointments.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="no-results">No Appointments found for today.</td>
+                    <td colspan="5" class="no-results">No appointments found for the selected date.</td>
                 </tr>
             `;
             return;
         }
 
-        // FIX (from round 1): createPatientRow expects (patient, appointmentId, doctorId)
         appointments.forEach(app => {
             const patient = {
                 id: app.patientId,
