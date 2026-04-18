@@ -36,7 +36,7 @@ public class AppointmentDTO {
         this.status = status;
         this.appointmentDate = appointmentTime != null ? appointmentTime.toLocalDate() : null;
         this.appointmentTimeOnly = appointmentTime != null ? appointmentTime.toLocalTime() : null;
-        this.endTime = appointmentTime != null ? appointmentTime.plusHours(1) : null;
+        this.endTime = appointmentTime != null ? appointmentTime.plusMinutes(30) : null;
     }
 
     public Long getId() { return id; }
