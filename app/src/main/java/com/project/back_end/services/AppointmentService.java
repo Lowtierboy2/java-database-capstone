@@ -3,6 +3,7 @@ package com.project.back_end.services;
 import com.project.back_end.DTO.AppointmentDTO;
 import com.project.back_end.models.Appointment;
 import com.project.back_end.models.Doctor;
+import com.project.back_end.models.Patient;
 import com.project.back_end.repo.AppointmentRepository;
 import com.project.back_end.repo.DoctorRepository;
 import com.project.back_end.repo.PatientRepository;
@@ -40,6 +41,24 @@ public class AppointmentService {
     @Transactional
     public int bookAppointment(Appointment appointment) {
         try {
+            Long patientId = appointment.getPatient() != null ? appointment.getPatient().getPatientId() : null;
+            Long doctorId = appointment.getDoctor() != null ? appointment.getDoctor().getDoctorId() : null;
+
+            if (patientId == null || doctorId == null) {
+                return 0;
+            }
+
+            Optional<Patient> patientOpt = patientRepository.findById(patientId);
+            Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
+            if (patientOpt.isEmpty() || doctorOpt.isEmpty()) {
+                return 0;
+            }
+
+            appointment.setPatient(patientOpt.get());
+            appointment.setDoctor(doctorOpt.get());
+            if (appointment.getStatus() == null || appointment.getStatus().isBlank()) {
+                appointment.setStatus("SCHEDULED");
+            }
             appointmentRepository.save(appointment);
             return 1;
         } catch (Exception e) {
@@ -52,8 +71,7 @@ public class AppointmentService {
         Map<String, String> response = new HashMap<>();
         try {
             String email = tokenService.extractEmail(token);
-            Optional<Appointment> existingOpt = appointmentRepository.findById(
-                    Long.valueOf(appointment.getAppointmentId()));
+            Optional<Appointment> existingOpt = appointmentRepository.findById(appointment.getAppointmentId());
 
             if (existingOpt.isEmpty()) {
                 response.put("message", "Appointment not found");
@@ -66,8 +84,20 @@ public class AppointmentService {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
+            Long doctorId = appointment.getDoctor() != null ? appointment.getDoctor().getDoctorId() : null;
+            if (doctorId == null) {
+                response.put("message", "Doctor is required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
+            if (doctorOpt.isEmpty()) {
+                response.put("message", "Doctor not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
             existing.setAppointmentTime(appointment.getAppointmentTime());
-            existing.setDoctor(appointment.getDoctor());
+            existing.setDoctor(doctorOpt.get());
             appointmentRepository.save(existing);
 
             response.put("message", "Appointment updated successfully");
@@ -121,12 +151,12 @@ public class AppointmentService {
             LocalDateTime start = localDate.atStartOfDay();
             LocalDateTime end = localDate.atTime(23, 59, 59);
 
-            Long doctorId = Long.valueOf(doctor.getDoctorId());
+            Long doctorId = doctor.getDoctorId();
             List<Appointment> appointments;
 
             if (patientName != null && !patientName.equals("null") && !patientName.isBlank()) {
                 appointments = appointmentRepository
-                        .findByDoctorIdAndPatient_NameContainingIgnoreCaseAndAppointmentTimeBetween(
+                        .findByDoctorIdAndPatientNameContainingIgnoreCaseAndAppointmentTimeBetween(
                                 doctorId, patientName, start, end);
             } else {
                 appointments = appointmentRepository
@@ -136,10 +166,10 @@ public class AppointmentService {
             List<AppointmentDTO> dtos = new ArrayList<>();
             for (Appointment a : appointments) {
                 dtos.add(new AppointmentDTO(
-                        Long.valueOf(a.getAppointmentId()),
-                        Long.valueOf(a.getDoctor().getDoctorId()),
+                        a.getAppointmentId(),
+                        a.getDoctor().getDoctorId(),
                         a.getDoctor().getFirstName() + " " + a.getDoctor().getLastName(),
-                        Long.valueOf(a.getPatient().getPatientId()),
+                        a.getPatient().getPatientId(),
                         a.getPatient().getFirstName() + " " + a.getPatient().getLastName(),
                         a.getPatient().getEmail(),
                         a.getPatient().getPhone(),
