@@ -40,7 +40,9 @@ public class DoctorService {
             }
 
             Doctor doctor = doctorOpt.get();
-            List<String> allSlots = new ArrayList<>(doctor.getAvailableTimes());
+            List<String> allSlots = doctor.getAvailableTimes() == null
+                    ? new ArrayList<>()
+                    : new ArrayList<>(doctor.getAvailableTimes());
 
             LocalDate localDate = LocalDate.parse(date);
             LocalDateTime start = localDate.atStartOfDay();
@@ -50,15 +52,14 @@ public class DoctorService {
                     .findByDoctorIdAndAppointmentTimeBetween(doctorId, start, end);
 
             Set<String> bookedSlots = bookedAppointments.stream()
-                    .map(a -> {
-                        String t = a.getAppointmentTime().toLocalTime().toString();
-                        return t.substring(0, 5);
-                    })
+                    .map(a -> a.getAppointmentTime().toLocalTime().toString())
+                    .map(t -> t.length() > 5 ? t.substring(0, 5) : t)
                     .collect(Collectors.toSet());
 
             List<String> availableSlots = allSlots.stream()
                     .filter(slot -> {
-                        String slotStart = slot.split("-")[0];
+                        String[] parts = slot.split("-");
+                        String slotStart = parts.length > 0 ? parts[0] : slot;
                         return !bookedSlots.contains(slotStart);
                     })
                     .collect(Collectors.toList());
@@ -76,6 +77,9 @@ public class DoctorService {
             if (doctorRepository.findByEmail(doctor.getEmail()) != null) {
                 return -1;
             }
+            if (doctor.getAvailableTimes() == null) {
+                doctor.setAvailableTimes(new ArrayList<>());
+            }
             doctorRepository.save(doctor);
             return 1;
         } catch (Exception e) {
@@ -85,8 +89,11 @@ public class DoctorService {
 
     public int updateDoctor(Doctor doctor) {
         try {
-            if (!doctorRepository.existsById(Long.valueOf(doctor.getDoctorId()))) {
+            if (doctor.getDoctorId() == null || !doctorRepository.existsById(doctor.getDoctorId())) {
                 return -1;
+            }
+            if (doctor.getAvailableTimes() == null) {
+                doctor.setAvailableTimes(new ArrayList<>());
             }
             doctorRepository.save(doctor);
             return 1;
@@ -122,7 +129,7 @@ public class DoctorService {
         Map<String, Object> response = new HashMap<>();
         try {
             Doctor doctor = doctorRepository.findByEmail(email);
-            if (doctor == null) {
+            if (doctor == null || doctor.getPassword() == null || password == null) {
                 response.put("message", "Invalid credentials");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
@@ -142,7 +149,7 @@ public class DoctorService {
 
     @Transactional
     public List<Doctor> findDoctorByName(String name) {
-        List<Doctor> doctors = doctorRepository.findByNameLike(name);
+        List<Doctor> doctors = doctorRepository.findByFullNameContainingIgnoreCase(name);
         doctors.forEach(d -> {
             if (d.getAvailableTimes() != null) d.getAvailableTimes().size();
         });
@@ -150,8 +157,8 @@ public class DoctorService {
     }
 
     @Transactional
-    public List<Doctor> filterDoctorsByNameSpecilityandTime(String name, String specialty, String time) {
-        List<Doctor> doctors = doctorRepository.findByFirstNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
+    public List<Doctor> filterDoctorsByNameSpecialtyAndTime(String name, String specialty, String time) {
+        List<Doctor> doctors = doctorRepository.findByFullNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
         doctors.forEach(d -> {
             if (d.getAvailableTimes() != null) d.getAvailableTimes().size();
         });
@@ -163,7 +170,9 @@ public class DoctorService {
         return doctors.stream()
                 .filter(d -> d.getAvailableTimes() != null && d.getAvailableTimes().stream().anyMatch(slot -> {
                     try {
-                        int hour = Integer.parseInt(slot.split(":")[0]);
+                        String[] parts = slot.split("-");
+                        String slotStart = parts.length > 0 ? parts[0] : slot;
+                        int hour = Integer.parseInt(slotStart.split(":")[0]);
                         return isAM ? hour < 12 : hour >= 12;
                     } catch (Exception e) {
                         return false;
@@ -179,12 +188,12 @@ public class DoctorService {
     }
 
     @Transactional
-    public List<Doctor> filterDoctorByNameAndSpecility(String name, String specialty) {
-        return doctorRepository.findByFirstNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
+    public List<Doctor> filterDoctorByNameAndSpecialty(String name, String specialty) {
+        return doctorRepository.findByFullNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
     }
 
     @Transactional
-    public List<Doctor> filterDoctorByTimeAndSpecility(String specialty, String time) {
+    public List<Doctor> filterDoctorByTimeAndSpecialty(String specialty, String time) {
         List<Doctor> doctors = doctorRepository.findBySpecialtyIgnoreCase(specialty);
         doctors.forEach(d -> {
             if (d.getAvailableTimes() != null) d.getAvailableTimes().size();
@@ -193,7 +202,7 @@ public class DoctorService {
     }
 
     @Transactional
-    public List<Doctor> filterDoctorBySpecility(String specialty) {
+    public List<Doctor> filterDoctorBySpecialty(String specialty) {
         return doctorRepository.findBySpecialtyIgnoreCase(specialty);
     }
 
