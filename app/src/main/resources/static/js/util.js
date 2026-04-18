@@ -1,18 +1,44 @@
 // util.js
 
+const ROLE_KEY = "userRole";
+const LEGACY_ROLE_KEY = "role";
+
+export function normalizeRole(role) {
+  if (!role) return null;
+
+  const lowered = role.toLowerCase();
+  switch (lowered) {
+    case "admin":
+      return "admin";
+    case "doctor":
+      return "doctor";
+    case "patient":
+      return "patient";
+    case "loggedpatient":
+      return "loggedPatient";
+    default:
+      return role;
+  }
+}
+
 // ===============================
 // ROLE HELPERS
 // ===============================
 export function setRole(role) {
-  localStorage.setItem("userRole", role);
+  const normalized = normalizeRole(role);
+  if (!normalized) return;
+
+  localStorage.setItem(ROLE_KEY, normalized);
+  localStorage.setItem(LEGACY_ROLE_KEY, normalized);
 }
 
 export function getRole() {
-  return localStorage.getItem("userRole");
+  return normalizeRole(localStorage.getItem(ROLE_KEY) || localStorage.getItem(LEGACY_ROLE_KEY));
 }
 
 export function clearRole() {
-  localStorage.removeItem("userRole");
+  localStorage.removeItem(ROLE_KEY);
+  localStorage.removeItem(LEGACY_ROLE_KEY);
 }
 
 // ===============================
