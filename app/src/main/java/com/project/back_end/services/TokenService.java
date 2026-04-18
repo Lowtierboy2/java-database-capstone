@@ -35,18 +35,18 @@ public class TokenService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String subject) {
         long expiration = 7L * 24 * 60 * 60 * 1000;
 
         return Jwts.builder()
-                .subject(email)
+                .subject(subject)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    public String extractEmail(String token) {
+    public String extractSubject(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -55,13 +55,17 @@ public class TokenService {
                 .getSubject();
     }
 
+    public String extractEmail(String token) {
+        return extractSubject(token);
+    }
+
     public boolean validateToken(String token, String role) {
         try {
-            String email = extractEmail(token);
+            String subject = extractSubject(token);
             return switch (role.toLowerCase()) {
-                case "admin" -> adminRepository.findByUsername(email) != null;
-                case "doctor" -> doctorRepository.findByEmail(email) != null;
-                case "patient" -> patientRepository.findByEmail(email) != null;
+                case "admin" -> adminRepository.findByUsername(subject) != null;
+                case "doctor" -> doctorRepository.findByEmail(subject) != null;
+                case "patient" -> patientRepository.findByEmail(subject) != null;
                 default -> false;
             };
         } catch (Exception e) {
